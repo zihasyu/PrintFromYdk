@@ -1,2 +1,2 @@
-# Metaltronus-Tool
-Mainly used to explore the use of Metaltronus in yugioh
+# PrintFromYdk
+Print from ydk to pdf in yugioh
