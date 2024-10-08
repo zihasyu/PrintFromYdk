@@ -16,6 +16,13 @@ int main()
       "D://MyCardLibrary/ygopro/pics/2511.jpg",
       "D://MyCardLibrary/ygopro/pics/10000.jpg",
       "D://MyCardLibrary/ygopro/pics/27551.jpg",
+      "D://MyCardLibrary/ygopro/pics/2511.jpg",
+      "D://MyCardLibrary/ygopro/pics/10000.jpg",
+      "D://MyCardLibrary/ygopro/pics/27551.jpg",
+      "D://MyCardLibrary/ygopro/pics/2511.jpg",
+      "D://MyCardLibrary/ygopro/pics/10000.jpg",
+      "D://MyCardLibrary/ygopro/pics/27551.jpg",
+      "D://MyCardLibrary/ygopro/pics/27551.jpg",
       // 添加更多图片路径
   };
 
@@ -30,43 +37,60 @@ int main()
   try
   {
     // 设置页面尺寸
-    const float page_width = 210.0;  // A4 width in mm
-    const float page_height = 297.0; // A4 height in mm
+    const float mm_to_points = 72.0 / 25.4;                      // 毫米到点的转换系数
+    const float page_width = 210.0 * mm_to_points;               // A4 width in points
+    const float page_height = 297.0 * mm_to_points;              // A4 height in points
+    const float margin = 0 * mm_to_points;                       // 页边距
+    const int images_per_row = 3;                                // 每行图片数量
+    const int images_per_col = 3;                                // 每列图片数量
+    const int images_per_page = images_per_row * images_per_col; // 每页图片数量
+    const float image_width = 59.0 * mm_to_points;               // 每个图片的宽度 (5.9 cm)
+    const float image_height = 86.0 * mm_to_points;              // 每个图片的高度 (8.6 cm)
 
-    for (const auto &image_path : image_paths)
+    HPDF_Page page = nullptr;
+
+    for (size_t i = 0; i < image_paths.size(); ++i)
     {
-      std::cout << "Processing image: " << image_path << std::endl;
+      if (i % images_per_page == 0)
+      {
+        // 添加新页面
+        page = HPDF_AddPage(pdf);
+        if (!page)
+        {
+          std::cerr << "Failed to add page" << std::endl;
+          HPDF_Free(pdf);
+          return 1;
+        }
+        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+      }
+
+      std::cout << "Processing image: " << image_paths[i] << std::endl;
 
       // 检查图像文件是否存在
-      FILE *file = fopen(image_path.c_str(), "rb");
+      FILE *file = fopen(image_paths[i].c_str(), "rb");
       if (!file)
       {
-        std::cerr << "Image file not found: " << image_path << std::endl;
+        std::cerr << "Image file not found: " << image_paths[i] << std::endl;
         continue; // 跳过不存在的图像
       }
       fclose(file);
 
-      // 添加页面
-      HPDF_Page page = HPDF_AddPage(pdf);
-      if (!page)
-      {
-        std::cerr << "Failed to add page" << std::endl;
-        HPDF_Free(pdf);
-        return 1;
-      }
-
-      HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
-
       // 加载图片
-      HPDF_Image image = HPDF_LoadJpegImageFromFile(pdf, image_path.c_str());
+      HPDF_Image image = HPDF_LoadJpegImageFromFile(pdf, image_paths[i].c_str());
       if (!image)
       {
-        std::cerr << "Failed to load image: " << image_path << std::endl;
+        std::cerr << "Failed to load image: " << image_paths[i] << std::endl;
         continue; // 跳过加载失败的图像
       }
 
+      // 计算图片位置
+      int row = (i % images_per_page) / images_per_row;
+      int col = (i % images_per_page) % images_per_row;
+      float x = margin + col * (image_width + margin);
+      float y = page_height - margin - (row + 1) * (image_height + margin) + margin;
+
       // 绘制图片
-      HPDF_Page_DrawImage(page, image, 0, 0, page_width, page_height);
+      HPDF_Page_DrawImage(page, image, x, y, image_width, image_height);
     }
 
     // 保存 PDF 文件
