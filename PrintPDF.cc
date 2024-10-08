@@ -1,4 +1,4 @@
-#include <hpdf.h>
+#include "./include/hpdf.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -13,7 +13,7 @@ int main()
 {
   // 图片路径和数量
   std::vector<std::string> image_paths = {
-      "image1.jpg", "image2.jpg", "image3.jpg", // 添加更多图片路径
+      "D://MyCardLibrary/ygopro/pics/2511.jpg", "D://MyCardLibrary/ygopro/pics/10000.jpg", "D://MyCardLibrary/ygopro/pics/327551.jpg", // 添加更多图片路径
   };
 
   // 初始化 PDF 文档
@@ -61,7 +61,7 @@ int main()
       }
     }
 
-    HPDF_SaveToFile(pdf, "output.pdf");
+    HPDF_SaveToFile(pdf, "./output.pdf");
     HPDF_Free(pdf);
   }
   catch (const std::exception &e)
