@@ -5,6 +5,11 @@ int main()
   std::string deck_dir = "../deck";
   std::wstring deck_wdir = string_to_wstring(deck_dir);
   std::string image_dir = "../pics";
+  if (!fs::exists(image_dir))
+  {
+    // 如果 ../pics 不存在，则重新赋值为 ../picture
+    image_dir = "../picture/card";
+  }
   std::wstring image_wdir = string_to_wstring(image_dir);
   std::vector<std::wstring> ydk_files = get_ydk_files(deck_wdir);
   for (const auto &ydk_file : ydk_files)
