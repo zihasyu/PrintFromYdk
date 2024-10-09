@@ -59,6 +59,7 @@ std::string wstring_to_string(const std::wstring &wstr)
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   return converter.to_bytes(wstr);
 }
+
 std::wstring string_to_wstring(const std::string &str)
 {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -123,12 +124,30 @@ void print_pdf(const std::wstring &ydk_file_wpath, const std::wstring &image_wdi
       // 绘制图片
       HPDF_Page_DrawImage(page, image, x, y, image_width, image_height);
     }
+    // fs::path ydk_path(ydk_file_wpath);
+    // std::wstring output_pdf_wname = ydk_path.stem().wstring() + L".pdf";
+    // std::string output_pdf_name = "./outputPDF/" + wstring_to_string(output_pdf_wname);
+    // // 保存 PDF 文件
+    // HPDF_SaveToFile(pdf, output_pdf_name.c_str());
+    // std::wcout << "PDF saved to " << output_pdf_wname << std::endl;
+    fs::path ydk_path(ydk_file_wpath);
+    std::wstring output_pdf_wname = ydk_path.stem().wstring() + L".pdf";
+    std::string temp_pdf_name = "temp_output.pdf"; // 临时文件名
 
-    std::wstring output_pdf_wname = ydk_file_wpath + L".pdf";
-    std::string output_pdf_name = wstring_to_string(output_pdf_wname);
-    // 保存 PDF 文件
-    HPDF_SaveToFile(pdf, output_pdf_name.c_str());
-    std::cout << "PDF saved to " << output_pdf_name << std::endl;
+    // 保存 PDF 文件到临时文件
+    HPDF_SaveToFile(pdf, temp_pdf_name.c_str());
+
+    // 使用 _wrename 来重命名文件为宽字符路径
+    std::wstring output_pdf_wpath = L"./outputPDF/" + output_pdf_wname;
+    if (_wrename(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(temp_pdf_name).c_str(),
+                 output_pdf_wpath.c_str()) != 0)
+    {
+      std::wcerr << L"Failed to rename PDF to " << output_pdf_wpath << std::endl;
+    }
+    else
+    {
+      std::wcout << L"PDF saved to " << output_pdf_wname << std::endl;
+    }
   }
   catch (const std::exception &e)
   {
