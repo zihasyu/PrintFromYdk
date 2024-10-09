@@ -52,7 +52,15 @@ std::vector<std::wstring> load_image_paths_from_ydk(const std::wstring &ydk_path
 
     // 假设每个数字对应一个图片文件，文件名为数字 + ".jpg"
     std::wstring image_path = image_dir + L"/" + line + L".jpg";
-    image_paths.push_back(image_path);
+    // 检查图片文件是否存在
+    if (fs::exists(image_path))
+    {
+      image_paths.push_back(image_path);
+    }
+    else
+    {
+      // std::wcerr << L"Image file not found: " << image_path << std::endl;
+    }
   }
 
   ydk_file.close();
