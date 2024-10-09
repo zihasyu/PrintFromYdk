@@ -2,82 +2,17 @@
 
 int main()
 {
-  std::string ydk_file_path = "D://MyCardLibrary/ygopro/deck/24.4甜点.ydk";
-  std::wstring ydk_file_wpath = string_to_wstring(ydk_file_path);
-  std::string image_dir = "D://MyCardLibrary/ygopro/pics";
+  std::string deck_dir = "../deck";
+  std::wstring deck_wdir = string_to_wstring(deck_dir);
+  std::string image_dir = "../pics";
   std::wstring image_wdir = string_to_wstring(image_dir);
-
-  std::vector<std::wstring> image_paths = load_image_paths_from_ydk(ydk_file_wpath, image_wdir);
-
-  // 初始化 PDF 文档
-  HPDF_Doc pdf = HPDF_New(error_handler, nullptr);
-  if (!pdf)
+  std::vector<std::wstring> ydk_files = get_ydk_files(deck_wdir);
+  for (const auto &ydk_file : ydk_files)
   {
-    std::cerr << "Failed to create PDF object" << std::endl;
-    return 1;
+    std::wcout << L"Processing YDK file: " << ydk_file << std::endl;
+    // 调用 print_pdf 函数
+    print_pdf(ydk_file, image_wdir);
   }
-
-  try
-  {
-    HPDF_Page page = nullptr;
-    for (size_t i = 0; i < image_paths.size(); ++i)
-    {
-      if (i % images_per_page == 0)
-      {
-        // 添加新页面
-        page = HPDF_AddPage(pdf);
-        if (!page)
-        {
-          std::cerr << "Failed to add page" << std::endl;
-          HPDF_Free(pdf);
-          return 1;
-        }
-        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
-      }
-
-      std::string image_path_utf8 = wstring_to_string(image_paths[i]);
-
-      // 检查图像文件是否存在
-      FILE *file = fopen(image_path_utf8.c_str(), "rb");
-      if (!file)
-      {
-        std::cerr << "Image file not found: " << image_path_utf8 << std::endl;
-        continue; // 跳过不存在的图像
-      }
-      fclose(file);
-
-      // 加载图片
-      HPDF_Image image = HPDF_LoadJpegImageFromFile(pdf, image_path_utf8.c_str());
-      if (!image)
-      {
-        std::cerr << "Failed to load image: " << image_path_utf8 << std::endl;
-        continue; // 跳过加载失败的图像
-      }
-
-      // 计算图片位置
-      int row = (i % images_per_page) / images_per_row;
-      int col = (i % images_per_page) % images_per_row;
-      float x = margin + col * (image_width + margin);
-      float y = page_height - margin - (row + 1) * (image_height + margin) + margin;
-
-      // 绘制图片
-      HPDF_Page_DrawImage(page, image, x, y, image_width, image_height);
-    }
-
-    // 保存 PDF 文件
-    const char *pdf_path = "output.pdf";
-    HPDF_SaveToFile(pdf, pdf_path);
-    std::cout << "PDF saved to " << pdf_path << std::endl;
-  }
-  catch (const std::exception &e)
-  {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    HPDF_Free(pdf);
-    return 1;
-  }
-
-  // 释放 PDF 对象
-  HPDF_Free(pdf);
   return 0;
 }
 
@@ -128,4 +63,94 @@ std::wstring string_to_wstring(const std::string &str)
 {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   return converter.from_bytes(str);
+}
+
+void print_pdf(const std::wstring &ydk_file_wpath, const std::wstring &image_wdir)
+{
+  std::vector<std::wstring> image_paths = load_image_paths_from_ydk(ydk_file_wpath, image_wdir);
+
+  // 初始化 PDF 文档
+  HPDF_Doc pdf = HPDF_New(error_handler, nullptr);
+  if (!pdf)
+  {
+    std::cerr << "Failed to create PDF object" << std::endl;
+    return;
+  }
+
+  try
+  {
+    HPDF_Page page = nullptr;
+    for (size_t i = 0; i < image_paths.size(); ++i)
+    {
+      if (i % images_per_page == 0)
+      {
+        // 添加新页面
+        page = HPDF_AddPage(pdf);
+        if (!page)
+        {
+          std::cerr << "Failed to add page" << std::endl;
+          HPDF_Free(pdf);
+          return;
+        }
+        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+      }
+
+      std::string image_path_utf8 = wstring_to_string(image_paths[i]);
+
+      // 检查图像文件是否存在
+      FILE *file = fopen(image_path_utf8.c_str(), "rb");
+      if (!file)
+      {
+        std::cerr << "Image file not found: " << image_path_utf8 << std::endl;
+        continue; // 跳过不存在的图像
+      }
+      fclose(file);
+
+      // 加载图片
+      HPDF_Image image = HPDF_LoadJpegImageFromFile(pdf, image_path_utf8.c_str());
+      if (!image)
+      {
+        std::cerr << "Failed to load image: " << image_path_utf8 << std::endl;
+        continue; // 跳过加载失败的图像
+      }
+
+      // 计算图片位置
+      int row = (i % images_per_page) / images_per_row;
+      int col = (i % images_per_page) % images_per_row;
+      float x = margin + col * (image_width + margin);
+      float y = page_height - margin - (row + 1) * (image_height + margin) + margin;
+
+      // 绘制图片
+      HPDF_Page_DrawImage(page, image, x, y, image_width, image_height);
+    }
+
+    std::wstring output_pdf_wname = ydk_file_wpath + L".pdf";
+    std::string output_pdf_name = wstring_to_string(output_pdf_wname);
+    // 保存 PDF 文件
+    HPDF_SaveToFile(pdf, output_pdf_name.c_str());
+    std::cout << "PDF saved to " << output_pdf_name << std::endl;
+  }
+  catch (const std::exception &e)
+  {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    HPDF_Free(pdf);
+    return;
+  }
+
+  // 释放 PDF 对象
+  HPDF_Free(pdf);
+  return;
+}
+
+std::vector<std::wstring> get_ydk_files(const std::wstring &directory)
+{
+  std::vector<std::wstring> ydk_files;
+  for (const auto &entry : fs::directory_iterator(directory))
+  {
+    if (entry.path().extension() == L".ydk")
+    {
+      ydk_files.push_back(entry.path().wstring());
+    }
+  }
+  return ydk_files;
 }

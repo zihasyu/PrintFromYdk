@@ -53,6 +53,8 @@
     "typeinfo": "cpp",
     "fstream": "cpp",
     "sstream": "cpp",
-    "codecvt": "cpp"
+    "codecvt": "cpp",
+    "ratio": "cpp",
+    "iomanip": "cpp"
   }
 }
