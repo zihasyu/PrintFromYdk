@@ -59,6 +59,13 @@ std::vector<std::wstring> load_image_paths_from_ydk(const std::wstring &ydk_path
     }
     else
     {
+      std::wstring fallback_image_dir = L"../expansions/pics";
+      image_path = fallback_image_dir + L"/" + line + L".jpg";
+      if (fs::exists(image_path))
+      {
+        image_paths.push_back(image_path);
+      }
+      std::wcerr << L"Image file not found: " << image_path << std::endl;
       // std::wcerr << L"Image file not found: " << image_path << std::endl;
     }
   }
