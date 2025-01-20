@@ -159,6 +159,10 @@ void print_pdf(const std::wstring &ydk_file_wpath, const std::wstring &image_wdi
 
     // 使用 _wrename 来重命名文件为宽字符路径
     std::wstring output_pdf_wpath = L"./outputPDF/" + output_pdf_wname;
+    if (std::filesystem::exists(output_pdf_wpath))
+    {
+      std::filesystem::remove(output_pdf_wpath);
+    }
     if (_wrename(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(temp_pdf_name).c_str(),
                  output_pdf_wpath.c_str()) != 0)
     {

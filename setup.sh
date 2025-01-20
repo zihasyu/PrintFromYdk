@@ -1,0 +1,1 @@
+g++ -I./include/hpdf -L./lib -o PrintPDF PrintPDF.cc -lhpdf
