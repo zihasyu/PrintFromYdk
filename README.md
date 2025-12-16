@@ -42,8 +42,8 @@ ygopro2
 3. 根据你的需求，双击对应的`.exe`文件。程序将自动生成PDF文件并保存在`./outputPDF/`目录中。
     - `M0`: 代表卡片之间**无间距**，只需6次裁剪即可获得9张卡。
     - `M5`: 代表卡片之间有**5mm间距**，可防止裁剪失误。
-    - `59_86`: 代表卡片尺寸为 **59x86mm** (标准卡套尺寸)。
-    - `61_90`: 代表卡片尺寸为 **~61x90mm** (适合放入更大的卡套)。
+    - `59_86`: 代表卡片尺寸为 **59x86mm** (标准游戏王卡片尺寸)。
+    - `61_90`: 代表卡片尺寸为 **~61x90mm** (适合某些打印机会自动缩放时的尺寸，例如某电文印中心)。
 4.  如果PDF文件没有出现在当前目录中，请检查目录权限或防火墙设置。
 
 ## 开发者
@@ -126,8 +126,8 @@ ygopro2
 3. Double-click the corresponding `.exe` file according to your needs. The program will automatically generate PDF files and save them in ./outputPDF/.
     - `M0`: Means **no margin** between cards. You can get 9 cards with just 6 cuts.
     - `M5`: Means a **5mm margin** between cards to prevent cutting errors.
-    - `59_86`: Means the card size is **59x86mm** (standard sleeve size).
-    - `61_90`: Means the card size is **~61x90mm** (fits larger sleeves).
+    - `59_86`: Means the card size is **59x86mm** (standard ygo's card size).
+    - `61_90`: Means the card size is **~61x90mm**. This is adjusted for printers that may automatically scale the output (e.g., the print center at UESTC), ensuring the final card fits standard sleeves.
 4. If the PDF file does not appear in the current directory, check the directory permissions or firewall settings.
 
 ## For Developers
